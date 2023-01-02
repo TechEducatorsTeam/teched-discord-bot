@@ -1,7 +1,6 @@
 {
 	"semi": true,
 	"printWidth": 100,
-	"singleQuote": true,
 	"bracketSpacing": true,
 	"insertPragma": false,
 	"requirePragma": false,

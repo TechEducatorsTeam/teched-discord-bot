@@ -1,3 +1,6 @@
-name = "" # todo
+name = "teched-job-discord-bot"
 main = "./src/index.ts"
 compatibility_date = "2022-05-03"
+
+[triggers]
+crons = ["0 13 * * mon"]
