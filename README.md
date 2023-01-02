@@ -11,3 +11,9 @@ $ npm ci
 # Launch a local dev instance (requires Cloudflare account)
 $ npm run dev
 ```
+
+## Deployment
+
+```sh
+npx wrangler publish
+```
