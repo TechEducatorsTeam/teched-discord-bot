@@ -5,10 +5,12 @@
 		"deploy": "wrangler publish src/index.ts",
 		"dev": "wrangler dev src/index.ts --local --test-scheduled",
 		"test": "vitest",
-		"start-stackblitz": "WRANGLER_SEND_METRICS=false wrangler dev src/index.ts --local"
+		"format-check": "prettier --check --ignore-path .gitignore .",
+		"format": "prettier --write --ignore-path .gitignore ."
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^3.0.0",
+		"prettier": "^2.8.1",
 		"vitest": "^0.24.5",
 		"wrangler": "^2.1.14"
 	},
