@@ -1,24 +1,47 @@
-import { unstable_dev } from 'wrangler';
-import type { UnstableDevWorker } from 'wrangler';
-import { describe, expect, it, beforeAll, afterAll } from 'vitest';
+import { unstable_dev } from "wrangler";
+import type { UnstableDevWorker } from "wrangler";
+import { describe, expect, it, beforeAll, afterAll } from "vitest";
+import { createJobListing, createJobLocationHeader } from ".";
 
-describe('Worker', () => {
+describe("Scheduled task test", () => {
 	let worker: UnstableDevWorker;
 
 	beforeAll(async () => {
-		worker = await unstable_dev('src/index.ts', {}, { disableExperimentalWarning: true });
+		worker = await unstable_dev("src/index.ts", {}, { disableExperimentalWarning: true });
 	});
 
 	afterAll(async () => {
 		await worker.stop();
 	});
 
-	it('should return 200 response', async () => {
-		const req = new Request('http://falcon', { method: 'GET' });
-		const resp = await worker.fetch(req);
-		expect(resp.status).toBe(200);
+	it("should parse a job and return a Location header", () => {
+		expect(createJobLocationHeader("Norwich")).toBe("\n## Norwich:\n");
+		expect(createJobLocationHeader("Cambridge")).toBe("\n## Cambridge:\n");
+	});
 
-		const text = await resp.text();
-		expect(text).toBe('request method: GET');
+	it("should parse a job and return a Location String", () => {
+		expect(
+			createJobListing({
+				id: "airtable_record_id",
+				createdTime: new Date(),
+				Title: "title",
+				Salary: "salary",
+				Location: "location",
+				LocationType: ["Hybrid"],
+				Url: "url",
+			})
+		).toBe(":link: **title:** @ salary [Hybrid] <url>");
+
+		expect(
+			createJobListing({
+				id: "airtable_record_id",
+				createdTime: new Date(),
+				Title: "title",
+				Salary: "",
+				Location: "location",
+				LocationType: ["Hybrid"],
+				Url: "url",
+			})
+		).toBe(":link: **title:** [Hybrid] <url>");
 	});
 });
