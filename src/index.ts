@@ -65,6 +65,7 @@ const createJobLocationHeader = (Location: string): string => `\n## ${Location}:
 
 const createJobListing = ({ Title, Salary, LocationType, Url }: Job): string => {
 	const LocationTypeString = LocationType.join(" | ");
+	const SalaryString = Salary ? ` @ ${Salary}` : "";
 
-	return `:link: **${Title}:** @ ${Salary} [${LocationTypeString}] <${Url}>`;
+	return `:link: **${Title}:**${SalaryString} [${LocationTypeString}] <${Url}>`;
 };
