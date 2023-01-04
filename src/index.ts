@@ -61,9 +61,9 @@ export default {
 	},
 };
 
-const createJobLocationHeader = (Location: string): string => `\n## ${Location}:\n`;
+export const createJobLocationHeader = (Location: string): string => `\n## ${Location}:\n`;
 
-const createJobListing = ({ Title, Salary, LocationType, Url }: Job): string => {
+export const createJobListing = ({ Title, Salary, LocationType, Url }: Job): string => {
 	const LocationTypeString = LocationType.join(" | ");
 	const SalaryString = Salary ? ` @ ${Salary}` : "";
 
