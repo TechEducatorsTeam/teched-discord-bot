@@ -12,8 +12,7 @@ type Locations = Record<string, Job[]>;
 export default {
 	async scheduled(
 		event: ScheduledEvent,
-		{ AIRTABLE_API_TOKEN, DISCORD_API_TOKEN, DISCORD_CHANNEL }: Env,
-		ctx: ExecutionContext
+		{ AIRTABLE_API_TOKEN, DISCORD_API_TOKEN, DISCORD_CHANNEL }: Env
 	) {
 		// Get Jobs List from the Provider
 		const provider = new JobBoard(AIRTABLE_API_TOKEN);
