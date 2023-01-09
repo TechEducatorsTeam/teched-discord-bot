@@ -5,6 +5,7 @@ type Env = {
 	AIRTABLE_API_TOKEN: string;
 	DISCORD_API_TOKEN: string;
 	DISCORD_CHANNEL: string;
+	DISCORD_LOG_CHANNEL: string;
 };
 
 type Locations = Record<string, Job[]>;
@@ -12,7 +13,7 @@ type Locations = Record<string, Job[]>;
 export default {
 	async scheduled(
 		event: ScheduledEvent,
-		{ AIRTABLE_API_TOKEN, DISCORD_API_TOKEN, DISCORD_CHANNEL }: Env
+		{ AIRTABLE_API_TOKEN, DISCORD_API_TOKEN, DISCORD_CHANNEL, DISCORD_LOG_CHANNEL }: Env
 	) {
 		// Get Jobs List from the Provider
 		const provider = new JobBoard(AIRTABLE_API_TOKEN);
@@ -21,6 +22,8 @@ export default {
 		// Filter for Jobs created in the last week
 		const after = subDays(new Date(), 7);
 		const latestJobs = jobs.filter(job => isAfter(job.createdTime, after));
+
+		log(`Collected ${latestJobs.length} jobs from AirTable`);
 
 		// Check we have any results
 		if (latestJobs.length === 0) return;
@@ -38,27 +41,32 @@ export default {
 
 		// Create the message content
 		const header = "Your weekly dose of job role goodness:";
-		const body = Object.keys(locations)
+		const post = Object.keys(locations)
 			.map(Location => [
 				createJobLocationHeader(Location),
 				...locations[Location].map(createJobListing),
 			])
 			.flat();
-		const content = [header, ...body].join("\n");
+
+		// @TODO: Split message into chunks of 2000 characters
+		const content = [header, ...post].join("\n");
 
 		// Send it to Discord
-		await fetch(`https://discord.com/api/v10/channels/${DISCORD_CHANNEL}/messages`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"Authorization": `Bot ${DISCORD_API_TOKEN}`,
-			},
-			body: JSON.stringify({
-				content,
-			}),
-		});
+		const response = await discord(DISCORD_API_TOKEN, DISCORD_CHANNEL, content);
+		const json = await response.json();
+		const body = JSON.stringify(json);
+
+		const status =
+			response.status === 200
+				? `Sent ${latestJobs.length} jobs from AirTable\n\`\`\`${JSON.stringify(body)}\`\`\``
+				: `Failed to send jobs to Discord\n\`\`\`${JSON.stringify(body)}\`\`\``;
+
+		log(status);
+		await discord(DISCORD_API_TOKEN, DISCORD_LOG_CHANNEL, status);
 	},
 };
+
+export const log = (message: string): void => console.log(message);
 
 export const createJobLocationHeader = (Location: string): string => `\n## ${Location}:\n`;
 
@@ -67,4 +75,23 @@ export const createJobListing = ({ Title, Salary, LocationType, Url }: Job): str
 	const SalaryString = Salary ? ` @ ${Salary}` : "";
 
 	return `:link: **${Title}:**${SalaryString} [${LocationTypeString}] <${Url}>`;
+};
+
+export const discord = async (
+	token: string,
+	channel: string,
+	content: string
+): Promise<Response> => {
+	console.log({ token, channel, content });
+
+	return await fetch(`https://discord.com/api/v10/channels/${channel}/messages`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"Authorization": `Bot ${token}`,
+		},
+		body: JSON.stringify({
+			content,
+		}),
+	});
 };
