@@ -28,13 +28,18 @@ export class JobBoard {
 
 	async get(): Promise<Job[]> {
 		const response = await this.#request();
-		const json: { records: AirtableRecord[] } = await response.json();
+		const json: { records?: AirtableRecord[]; error: object } = await response.json();
 
-		const jobs = json.records.map(({ id, createdTime, fields }) => ({
-			...fields,
-			id,
-			createdTime: new Date(createdTime),
-		}));
+		if (json.error || json.records === undefined) return [];
+
+		const jobs = json.records.map(
+			({ id, createdTime, fields }) =>
+				({
+					...fields,
+					id,
+					createdTime: new Date(createdTime),
+				} as Job)
+		);
 
 		return jobs;
 	}
