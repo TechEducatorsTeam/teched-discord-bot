@@ -1,7 +1,7 @@
 import { unstable_dev } from "wrangler";
 import type { UnstableDevWorker } from "wrangler";
 import { describe, expect, it, beforeAll, afterAll } from "vitest";
-import { createJobListing, createJobLocationHeader } from ".";
+import { createJobLocationHeader, jobListingGenerator } from ".";
 
 describe("Scheduled task test", () => {
 	let worker: UnstableDevWorker;
@@ -20,6 +20,7 @@ describe("Scheduled task test", () => {
 	});
 
 	it("should parse a job and return a Location String", () => {
+		const createJobListing = jobListingGenerator("https://example.com");
 		expect(
 			createJobListing({
 				id: "airtable_record_id",
@@ -30,7 +31,7 @@ describe("Scheduled task test", () => {
 				LocationType: ["Hybrid"],
 				Url: "url",
 			})
-		).toBe(":link: **title:** @ salary [Hybrid] <url>");
+		).toBe(":link: **title:** @ salary [Hybrid] <https://example.com/jobs/airtable_record_id>");
 
 		expect(
 			createJobListing({
@@ -42,6 +43,6 @@ describe("Scheduled task test", () => {
 				LocationType: ["Hybrid"],
 				Url: "url",
 			})
-		).toBe(":link: **title:** [Hybrid] <url>");
+		).toBe(":link: **title:** [Hybrid] <https://example.com/jobs/airtable_record_id>");
 	});
 });
