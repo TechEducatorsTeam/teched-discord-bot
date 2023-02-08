@@ -96,7 +96,7 @@ export const jobListingGenerator =
 	({ id, Title, Salary, LocationType }: Job): string => {
 		const LocationTypeString = LocationType.join(" | ");
 		const SalaryString = Salary ? ` @ ${Salary}` : "";
-		const Url = `${WORKER_URL}/jobs/${id}`;
+		const Url = `${WORKER_URL}/job/${id}`;
 
 		return `:link: **${Title}:**${SalaryString} [${LocationTypeString}] <${Url}>`;
 	};
