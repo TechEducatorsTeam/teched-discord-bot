@@ -79,14 +79,8 @@ export const createJobListing = ({ Title, Salary, LocationType, Url }: Job): str
 	return `:link: **${Title}:**${SalaryString} [${LocationTypeString}] <${Url}>`;
 };
 
-export const discord = async (
-	token: string,
-	channel: string,
-	content: string
-): Promise<Response> => {
-	console.log({ token, channel, content });
-
-	return await fetch(`https://discord.com/api/v10/channels/${channel}/messages`, {
+export const discord = async (token: string, channel: string, content: string): Promise<Response> =>
+	await fetch(`https://discord.com/api/v10/channels/${channel}/messages`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -96,4 +90,3 @@ export const discord = async (
 			content,
 		}),
 	});
-};
