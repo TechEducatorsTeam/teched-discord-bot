@@ -48,8 +48,10 @@ export default {
 			])
 			.flat();
 
-		// @TODO: Split message into chunks of 2000 characters
-		const content = [header, ...post].join("\n");
+		// Limit message to 1500 characters
+		const content = [header, ...post].reduce((body, line) =>
+			body.length > 1500 ? body : `${body}\n${line}`
+		);
 
 		// Send it to Discord
 		const response = await discord(DISCORD_API_TOKEN, DISCORD_CHANNEL, content);
