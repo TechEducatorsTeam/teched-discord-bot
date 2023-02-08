@@ -62,11 +62,10 @@ export default {
 
 		const status =
 			response.status === 200
-				? `Sent ${latestJobs.length} jobs from AirTable\n\`\`\`${JSON.stringify(body)}\`\`\``
+				? `Sent ${latestJobs.length} jobs from AirTable to <#${DISCORD_CHANNEL}>`
 				: `Failed to send jobs to Discord\n\`\`\`${JSON.stringify(body)}\`\`\``;
 
-		log(status);
-		await discord(DISCORD_API_TOKEN, DISCORD_LOG_CHANNEL, status);
+		await discord(DISCORD_API_TOKEN, DISCORD_LOG_CHANNEL, `[teched-job-discord-bot] ${status}`);
 	},
 	async fetch(request: Request, { AIRTABLE_API_TOKEN }: Env) {
 		if (request.method !== "GET") return new Response("Method not allowed", { status: 405 });
