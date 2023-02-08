@@ -66,6 +66,23 @@ export default {
 		log(status);
 		await discord(DISCORD_API_TOKEN, DISCORD_LOG_CHANNEL, status);
 	},
+	async fetch(request: Request, { AIRTABLE_API_TOKEN }: Env) {
+		if (request.method !== "GET") return new Response("Method not allowed", { status: 405 });
+		if (!request.url.includes("/job/")) return new Response("Not Found", { status: 404 });
+
+		// Get the Record ID that's been requested
+		const jobRecordId = request.url.split("/").pop();
+
+		// Get the Job from the Job List Provider
+		const provider = new JobBoard(AIRTABLE_API_TOKEN);
+		const jobs = await provider.get();
+		const job = jobs.find(({ id }) => id === jobRecordId);
+
+		if (!job) return new Response("Not Found", { status: 404 });
+
+		// Redirect them to the Job's application Url
+		return Response.redirect(job.Url);
+	},
 };
 
 export const log = (message: string): void => console.log(message);
