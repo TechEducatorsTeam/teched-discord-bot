@@ -6,14 +6,15 @@ type Env = {
 	DISCORD_API_TOKEN: string;
 	DISCORD_CHANNEL: string;
 	DISCORD_LOG_CHANNEL: string;
+	WORKER_URL: string;
 };
 
 type Locations = Record<string, Job[]>;
 
 export default {
 	async scheduled(
-		event: ScheduledEvent,
-		{ AIRTABLE_API_TOKEN, DISCORD_API_TOKEN, DISCORD_CHANNEL, DISCORD_LOG_CHANNEL }: Env
+		_: ScheduledEvent,
+		{ AIRTABLE_API_TOKEN, DISCORD_API_TOKEN, DISCORD_CHANNEL, DISCORD_LOG_CHANNEL, WORKER_URL }: Env
 	) {
 		// Get Jobs List from the Provider
 		const provider = new JobBoard(AIRTABLE_API_TOKEN);
@@ -40,6 +41,7 @@ export default {
 		}, {} as Locations);
 
 		// Create the message content
+		const createJobListing = jobListingGenerator(WORKER_URL);
 		const header = "Your weekly dose of job role goodness:";
 		const post = Object.keys(locations)
 			.map(Location => [
@@ -89,12 +91,15 @@ export const log = (message: string): void => console.log(message);
 
 export const createJobLocationHeader = (Location: string): string => `\n## ${Location}:\n`;
 
-export const createJobListing = ({ Title, Salary, LocationType, Url }: Job): string => {
-	const LocationTypeString = LocationType.join(" | ");
-	const SalaryString = Salary ? ` @ ${Salary}` : "";
+export const jobListingGenerator =
+	(WORKER_URL: string) =>
+	({ id, Title, Salary, LocationType }: Job): string => {
+		const LocationTypeString = LocationType.join(" | ");
+		const SalaryString = Salary ? ` @ ${Salary}` : "";
+		const Url = `${WORKER_URL}/jobs/${id}`;
 
-	return `:link: **${Title}:**${SalaryString} [${LocationTypeString}] <${Url}>`;
-};
+		return `:link: **${Title}:**${SalaryString} [${LocationTypeString}] <${Url}>`;
+	};
 
 export const discord = async (token: string, channel: string, content: string): Promise<Response> =>
 	await fetch(`https://discord.com/api/v10/channels/${channel}/messages`, {
