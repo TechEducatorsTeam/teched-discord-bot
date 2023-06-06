@@ -93,7 +93,7 @@ export const createJobLocationHeader = (Location: string): string => `\n## ${Loc
 export const jobListingGenerator =
 	(WORKER_URL: string) =>
 	({ id, Title, Salary, LocationType }: Job): string => {
-		const LocationTypeString = LocationType.join(" | ");
+		const LocationTypeString = LocationType ? LocationType.join(" | ") : "Unknown";
 		const SalaryString = Salary ? ` @ ${Salary}` : "";
 		const Url = `${WORKER_URL}/job/${id}`;
 
