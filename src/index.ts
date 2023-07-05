@@ -21,9 +21,11 @@ export default {
 		const jobs = await provider.get();
 
 		// Filter for Jobs created in the last week
-		const after = subDays(new Date(), 7);
+		// const after = subDays(new Date(), 7);
+		const after = subDays(new Date(), 12);
 		const latestJobs = jobs.filter(job => isAfter(job.createdTime, after));
 
+console.log(jobs.length)
 		log(`Collected ${latestJobs.length} jobs from AirTable`);
 
 		// Check we have any results
