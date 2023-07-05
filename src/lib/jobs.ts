@@ -45,7 +45,7 @@ export class JobBoard {
 	}
 
 	async #request() {
-		const url = `${BASE_URL}/${TABLE}`;
+		const url = `${BASE_URL}/${TABLE}?sort[0][field]=Created&sort[0][direction]=desc`;
 
 		return fetch(url, {
 			headers: {
