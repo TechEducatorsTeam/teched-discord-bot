@@ -20,12 +20,10 @@ export default {
 		const provider = new JobBoard(AIRTABLE_API_TOKEN);
 		const jobs = await provider.get();
 
-		// Filter for Jobs created in the last week
-		// const after = subDays(new Date(), 7);
-		const after = subDays(new Date(), 12);
+		// Filter for Jobs created in the last day (-24h)
+		const after = subDays(new Date(), 1);
 		const latestJobs = jobs.filter(job => isAfter(job.createdTime, after));
 
-console.log(jobs.length)
 		log(`Collected ${latestJobs.length} jobs from AirTable`);
 
 		// Check we have any results
@@ -44,7 +42,7 @@ console.log(jobs.length)
 
 		// Create the message content
 		const createJobListing = jobListingGenerator(WORKER_URL);
-		const header = "Your weekly dose of job role goodness:";
+		const header = "Your daily dose of job role goodness:";
 		const post = Object.keys(locations)
 			.map(Location => [
 				createJobLocationHeader(Location),
