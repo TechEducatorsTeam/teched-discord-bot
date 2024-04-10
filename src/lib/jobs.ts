@@ -33,7 +33,7 @@ export class JobBoard {
 		if (json.error || json.records === undefined) return [];
 
 		const jobs = json.records
-			.filter(({fields}) => fields.title !== undefined)
+			.filter(({ fields }) => fields.Title !== undefined)
 			.map(
 				({ id, createdTime, fields }) =>
 					({
