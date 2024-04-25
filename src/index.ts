@@ -21,7 +21,7 @@ export default {
 		const jobs = await provider.get();
 
 		// Filter for Jobs created in the last day (-24h)
-		const after = subDays(new Date(), 1);
+		const after = subDays(new Date(), 8);
 		const latestJobs = jobs.filter(job => isAfter(job.createdTime, after));
 
 		log(`Collected ${latestJobs.length} jobs from AirTable`);
