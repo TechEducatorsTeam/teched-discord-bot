@@ -4,7 +4,9 @@ const TABLE = "Jobs";
 type AirtableRecord = {
 	id: string;
 	createdTime: string;
-	fields: object;
+	fields: {
+		Title: string;
+	};
 };
 
 export type Job = {

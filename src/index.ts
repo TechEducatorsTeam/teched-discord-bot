@@ -21,7 +21,7 @@ export default {
 		const jobs = await provider.get();
 
 		// Filter for Jobs created in the last day (-24h)
-		const after = subDays(new Date(), 1);
+		const after = subDays(new Date(), 8);
 		const latestJobs = jobs.filter(job => isAfter(job.createdTime, after));
 
 		log(`Collected ${latestJobs.length} jobs from AirTable`);
@@ -42,28 +42,32 @@ export default {
 
 		// Create the message content
 		const createJobListing = jobListingGenerator(WORKER_URL);
-		const header = "Your daily dose of job role goodness:";
-		const post = Object.keys(locations)
-			.map(Location => [
-				createJobLocationHeader(Location),
-				...locations[Location].map(createJobListing),
-			])
-			.flat();
+		const messages = Object.keys(locations)
+			.map(Location =>
+				createJobLocationHeader(Location) + locations[Location].map(createJobListing).join('\n'),
+			)
+			.reduce((messages, location) => {
+				if (((messages[messages.length - 1]?.length || 0) + location.length) > 1500) {
+					// This location is too large to add to the current message, add a new one
+					messages.push("");
+				}
 
-		// Limit message to 1500 characters
-		const content = [header, ...post].reduce((body, line) =>
-			body.length > 1500 ? body : `${body}\n${line}`
-		);
+				// Append this location to the current message
+				messages[messages.length - 1] = messages[messages.length - 1] + location;
+
+				return messages;
+			}, [])
 
 		// Send it to Discord
-		const response = await discord(DISCORD_API_TOKEN, DISCORD_CHANNEL, content);
-		const json = await response.json();
-		const body = JSON.stringify(json);
+		const responses = await Promise.all(
+			messages.map(
+				(message) => discord(DISCORD_API_TOKEN, DISCORD_CHANNEL, message)
+			)
+		);
 
-		const status =
-			response.status === 200
+		const status = responses.every(res => res.status === 200)
 				? `Sent ${latestJobs.length} jobs from AirTable to <#${DISCORD_CHANNEL}>`
-				: `Failed to send jobs to Discord\n\`\`\`${JSON.stringify(body)}\`\`\``;
+				: "Failed to send jobs to Discord";
 
 		await discord(DISCORD_API_TOKEN, DISCORD_LOG_CHANNEL, `[teched-job-discord-bot] ${status}`);
 	},
