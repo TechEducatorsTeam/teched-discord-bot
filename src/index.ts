@@ -43,29 +43,31 @@ export default {
 		// Create the message content
 		const createJobListing = jobListingGenerator(WORKER_URL);
 		const messages = Object.keys(locations)
-			.map(Location =>
-				createJobLocationHeader(Location) + locations[Location].map(createJobListing).join('\n'),
+			.map(
+				Location =>
+					createJobLocationHeader(Location) + locations[Location].map(createJobListing).join("\n")
 			)
-			.reduce((messages, location) => {
-				if (messages[messages.length - 1].length + location.length > 1500) {
-					messages.push("");
-				}
+			.reduce(
+				(messages, location) => {
+					if (messages[messages.length - 1].length + location.length > 1500) {
+						messages.push("");
+					}
 
-				messages[messages.length - 1] = messages[messages.length - 1] + location;
+					messages[messages.length - 1] = messages[messages.length - 1] + location;
 
-				return messages;
-			}, [""])
+					return messages;
+				},
+				[""]
+			);
 
 		// Send it to Discord
 		const responses = await Promise.all(
-			messages.map(
-				(message) => discord(DISCORD_API_TOKEN, DISCORD_CHANNEL, message)
-			)
+			messages.map(message => discord(DISCORD_API_TOKEN, DISCORD_CHANNEL, message))
 		);
 
 		const status = responses.every(res => res.status === 200)
-				? `Sent ${latestJobs.length} jobs from AirTable to <#${DISCORD_CHANNEL}>`
-				: "Failed to send jobs to Discord";
+			? `Sent ${latestJobs.length} jobs from AirTable to <#${DISCORD_CHANNEL}>`
+			: "Failed to send jobs to Discord";
 
 		await discord(DISCORD_API_TOKEN, DISCORD_LOG_CHANNEL, `[teched-job-discord-bot] ${status}`);
 	},
