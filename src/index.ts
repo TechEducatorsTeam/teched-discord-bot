@@ -47,16 +47,14 @@ export default {
 				createJobLocationHeader(Location) + locations[Location].map(createJobListing).join('\n'),
 			)
 			.reduce((messages, location) => {
-				if (((messages[messages.length - 1]?.length || 0) + location.length) > 1500) {
-					// This location is too large to add to the current message, add a new one
+				if (messages[messages.length - 1].length + location.length > 1500) {
 					messages.push("");
 				}
 
-				// Append this location to the current message
 				messages[messages.length - 1] = messages[messages.length - 1] + location;
 
 				return messages;
-			}, [])
+			}, [""])
 
 		// Send it to Discord
 		const responses = await Promise.all(
